@@ -1560,6 +1560,7 @@ class DataFramePassImpl(object):
     def _run_call_set_df_column(self, assign, lhs, rhs):
         # replace with regular setitem if target is not dataframe
         # TODO: test non-df case
+
         if not self._is_df_var(rhs.args[0]):
             def _impl(target, index, val):
                 target[index] = val
@@ -1592,6 +1593,9 @@ class DataFramePassImpl(object):
             replace_arg_nodes(f_block, [orig_arr, bool_arr])
             nodes += f_block.body[:-2]
             new_arr = nodes[-1].target
+
+        import pdb
+        pdb.set_trace()
 
         # set unboxed df column with reflection
         if df_typ.has_parent:

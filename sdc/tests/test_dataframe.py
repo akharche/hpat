@@ -462,18 +462,29 @@ class TestDataFrame(TestCase):
         df2 = df.copy()
         pd.testing.assert_frame_equal(hpat_func(df, n), test_impl(df2, n))
 
-    @skip_numba_jit
-    def test_set_column1(self):
+    def test_setitem_column1(self):
         # set existing column
-        def test_impl(n):
-            df = pd.DataFrame({'A': np.ones(n, np.int64), 'B': np.arange(n) + 3.0})
-            df['A'] = np.arange(n)
+        def test_impl_sdc(n, df):
+            print("START")
+            print(df)
+            df['A'] = [.5, .6, .7]
+            print("END")
+            print(df)
             return df
 
-        hpat_func = self.jit(test_impl)
-        n = 11
+        def test_impl(n, df):
+
+            df['A'] = [.5, .6, .7]
+
+            return df
+
+        sdc_func = self.jit(test_impl_sdc)
+        n = 3
+        df = pd.DataFrame({'A': np.ones(n, np.int64), 'B': np.arange(n) + 3.0})
         do_check = False if platform.system() == 'Windows' and not IS_32BITS else True
-        pd.testing.assert_frame_equal(hpat_func(n), test_impl(n), check_dtype=do_check)
+        # print(sdc_func(n, df))
+        # print(sdc_func(n, df))
+        pd.testing.assert_frame_equal(sdc_func(n, df), test_impl(n, df), check_dtype=do_check)
 
     @skip_numba_jit
     def test_set_column_reflect4(self):

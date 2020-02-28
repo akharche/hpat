@@ -1345,6 +1345,127 @@ def sdc_pandas_dataframe_getitem(self, idx):
     ty_checker.raise_exc(idx, expected_types, 'idx')
 
 
+def df_setitem_num_array_value_codegen(self, idx):
+    """
+    Example of generated implementation with provided index:
+
+    """
+    indent = 4 * ' '
+    func_lines = ['def _df_setitem_num_array_value_impl(self, idx, value):']
+
+
+
+
+    func_lines += df_getitem_bool_array_idx_main_codelines(self, idx)
+    func_text = '\n'.join(func_lines)
+    global_vars = {'pandas': pandas, 'numpy': numpy,
+                   'get_dataframe_data': get_dataframe_data}
+
+    return func_text, global_vars
+
+
+gen_df_setitem_num_array_value_impl = gen_df_impl_generator(
+    df_setitem_num_array_value_codegen, '_df_setitem_num_array_value_impl')
+
+
+@sdc_overload(operator.setitem)
+def sdc_pandas_dataframe_setitem(self, idx, value):
+    """
+    Intel Scalable Dataframe Compiler User Guide
+    ********************************************
+    Pandas API: pandas.DataFrame.__setitem__
+
+    Limitations
+    -----------
+        Not supported for idx as a string slice, e.g. S['a':'f'] = value
+        Not supported for string series
+        Not supported for a case of setting value for non existing index
+        Not supported for cases when setting causes change of the Series dtype
+
+    Examples
+    --------
+    .. literalinclude:: ../../../examples/series_setitem_int.py
+       :language: python
+       :lines: 27-
+       :caption: Setting Pandas Series elements
+       :name: ex_series_setitem
+
+    .. code-block:: console
+
+        > python ./series_setitem_int.py
+
+            0    0
+            1    4
+            2    3
+            3    2
+            4    1
+            dtype: int64
+
+        > python ./series_setitem_slice.py
+
+            0    5
+            1    4
+            2    0
+            3    0
+            4    0
+            dtype: int64
+
+        > python ./series_setitem_series.py
+
+            0    5
+            1    0
+            2    3
+            3    0
+            4    1
+            dtype: int64
+
+    Intel Scalable Dataframe Compiler Developer Guide
+    *************************************************
+    Pandas Series operator :attr:`pandas.Series.set` implementation
+
+    .. only:: developer
+        Test: python -m sdc.runtests -k sdc.tests.test_series.TestSeries.test_series_setitem*
+    """
+
+    _func_name = 'Operator setitem().'
+    ty_checker = TypeChecker(_func_name)
+    ty_checker.check(self, DataFrameType)
+
+    #  check column name
+
+    # set_df_column_with_reflect
+    # idx - column name
+    # value - array to change
+
+    import pdb
+    pdb.set_trace()
+
+    if isinstance(idx, types.StringLiteral) and isinstance(value, types.Array):
+        try:
+            col_idx = self.columns.index(idx.literal_value)
+            key_error = False
+        except ValueError:
+            key_error = True
+
+        def _df_setitem_str_literal_idx_impl(self, idx, value):
+            if key_error == False:  # noqa
+                if sdc.hiframes.pd_dataframe_ext.has_parent(self):
+                    return sdc.hiframes.pd_dataframe_ext.set_df_column_with_reflect(self, idx, value)
+                else:
+                    pass
+            else:
+                raise KeyError('Column with given name is not in the DataFrame')
+
+
+            # else:
+            #     raise KeyError('Column is not in the DataFrame')
+
+        # return lambda self, idx, value: sdc.hiframes.pd_dataframe_ext.set_df_column_with_reflect(
+        #     self, idx, sdc.hiframes.api.fix_df_array(value))
+
+        return _df_setitem_str_literal_idx_impl
+
+
 @sdc_overload_method(DataFrameType, 'pct_change')
 def pct_change_overload(df, periods=1, fill_method='pad', limit=None, freq=None):
     """

@@ -234,6 +234,9 @@ def set_df_column_with_reflect(typingctx, df, cname, arr):
     return a new df.
     """
 
+    import pdb
+    pdb.set_trace()
+
     col_name = cname.literal_value
     n_cols = len(df.columns)
     new_n_cols = n_cols
@@ -252,6 +255,10 @@ def set_df_column_with_reflect(typingctx, df, cname, arr):
                           for i in range(n_cols))
 
     def codegen(context, builder, signature, args):
+
+        import pdb
+        pdb.set_trace()
+
         df_arg, _, arr_arg = args
 
         in_dataframe = cgutils.create_struct_proxy(df)(
